@@ -1,0 +1,3 @@
+# URL for the stats API - Keep default if using SMP Stat website
+# Change only if using your own backend
+apiUrl: "http://localhost:3000"

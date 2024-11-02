@@ -9,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class SmpStat extends JavaPlugin implements Listener {
 
     private String serverSecret; // This will hold the secret string
+    private String apiUrl;
 
     @Override
     public void onEnable() {
@@ -17,6 +18,7 @@ public final class SmpStat extends JavaPlugin implements Listener {
 
         // Attempt to load the secret value from the config
         serverSecret = getConfig().getString("serverSecret", null); // Get the value or null if not defined
+        apiUrl = getConfig().getString("apiUrl", "http://localhost:3000");
 
         if (serverSecret == null) {
             // Display warning in console if the value is not defined
@@ -24,7 +26,7 @@ public final class SmpStat extends JavaPlugin implements Listener {
         }
 
         // Register the SmpStatListener
-        getServer().getPluginManager().registerEvents(new SmpStatEventListener(this, serverSecret), this);
+        getServer().getPluginManager().registerEvents(new SmpStatEventListener(this), this);
     }
 
     @Override
@@ -58,7 +60,11 @@ public final class SmpStat extends JavaPlugin implements Listener {
         return false;
     }
 
-    public String getSecretValue() {
-        return serverSecret; // Provide access to the secret value
+    public String getServerSecret() {
+        return serverSecret;
+    }
+
+    public String getApiUrl() {
+        return apiUrl;
     }
 }

@@ -4,20 +4,20 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+
+import net.smpstat.SmpStat;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class HttpService {
 
-    private final JavaPlugin plugin;
+    private final SmpStat plugin;
 
-    public HttpService(JavaPlugin plugin) {
+    public HttpService(SmpStat plugin) {
         this.plugin = plugin;
     }
 
     // General method to send POST requests
     private void sendPostRequest(String endpoint, String jsonInputString) {
-        // TODO - Include server secret that is generated and required by SMP Stat website;
-        //  Secret should be stored somewhere in config file in mc servers folder
         try {
             // URL of the API endpoint
             URL url = new URL(endpoint);
@@ -38,7 +38,7 @@ public class HttpService {
             // Check the response code
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                plugin.getLogger().info("Successfully sent data to the API for payload: " + jsonInputString);
+                plugin.getLogger().info("Successfully sent data to the API");
             } else {
                 plugin.getLogger().warning("Failed to send data to the API. Response code: " + responseCode);
             }
@@ -51,15 +51,29 @@ public class HttpService {
         }
     }
 
-    public void playerJoin(String playerName, String serverSecret) {
+    public void playerJoin(String playerName, String uuid) {
         // JSON body data for the player join event
-        String jsonInputString = String.format("{\"player\":\"%s\", \"serverSecret\":\"%s\"}", playerName, serverSecret);
-        sendPostRequest("http://localhost:3000/api/playerJoin", jsonInputString);
+        String jsonInputString = String.format("{\"player\":\"%s\", \"uuid\":\"%s\", \"serverSecret\":\"%s\"}", playerName, uuid, plugin.getServerSecret());
+        sendPostRequest(plugin.getApiUrl() + "/api/playerJoin", jsonInputString);
     }
 
-    public void playerDied(String playerName, String deathMessage, String serverSecret) {
+    public void playerDied(String playerName, String deathMessage, String uuid) {
         // JSON body data for the player death event
-        String jsonInputString = String.format("{\"player\":\"%s\", \"deathMsg\":\"%s\", \"serverSecret\":\"%s\"}", playerName, deathMessage, serverSecret);
-        sendPostRequest("http://localhost:3000/api/playerDeath", jsonInputString);
+        String jsonInputString = String.format("{\"player\":\"%s\", \"deathMsg\":\"%s\", \"uuid\":\"%s\", \"serverSecret\":\"%s\"}", playerName, deathMessage, uuid, plugin
+                .getServerSecret());
+        sendPostRequest(plugin.getApiUrl() + "/api/playerDeath", jsonInputString);
     }
+
+    public void playerQuit(String playerName, String uuid) {
+        // JSON body data for the player quit event
+        String jsonInputString = String.format("{\"player\":\"%s\", \"uuid\":\"%s\", \"serverSecret\":\"%s\"}", playerName, uuid, plugin.getServerSecret());
+        sendPostRequest(plugin.getApiUrl() + "/api/playerQuit", jsonInputString);
+    }
+
+    public void playerAdvancement(String playerName, String advancement, String uuid) {
+        // JSON body data for the player advancement event
+        String jsonInputString = String.format("{\"player\":\"%s\", \"advancement\":\"%s\", \"uuid\":\"%s\", \"serverSecret\":\"%s\"}", playerName, advancement, uuid, plugin.getServerSecret());
+        sendPostRequest(plugin.getApiUrl() + "/api/playerAdvancement", jsonInputString);
+    }
+
 }
